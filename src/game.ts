@@ -11,7 +11,7 @@ class RotatorSystem {
       const transform = entity.getComponent(Transform)
 
       // mutate the rotation
-      transform.rotate(Vector3.Up(), dt * 10)
+      // transform.rotate(Vector3.Up(), dt * 10)
     }
   }
 }
@@ -49,3 +49,13 @@ cube.addComponent(
     spawnCube(Math.random() * 8 + 1, Math.random() * 8, Math.random() * 8 + 1)
   })
 )
+
+let monitor = new Entity()
+monitor.addComponent(new GLTFShape("models/monitor.glb"))
+monitor.addComponent(
+  new Transform({
+    position: new Vector3(5, 1.33, 4),
+    scale: new Vector3(5, 5, 5),
+  })
+)
+engine.addEntity(monitor)
