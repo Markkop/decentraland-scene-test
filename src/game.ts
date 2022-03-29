@@ -1,3 +1,8 @@
+import { getUserData, UserData } from "@decentraland/Identity"
+
+// https://docs.decentraland.org/development-guide/preview-scene/
+// https://docs.decentraland.org/development-guide/remote-scene-considerations/
+
 /// --- Set up a system ---
 
 class RotatorSystem {
@@ -59,3 +64,34 @@ monitor.addComponent(
   })
 )
 engine.addEntity(monitor)
+
+
+monitor.addComponent(
+  new OnPointerDown(() => {
+    // https://docs.decentraland.org/development-guide/network-connections/
+    executeTask(async () => {
+      try {
+        let userData: UserData | null
+
+        // https://docs.decentraland.org/development-guide/user-data/
+        userData = await getUserData()
+        log({userData})
+
+        const callUrl = 'https://reqres.in/api/users'
+        let response = await fetch(callUrl, {
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify({
+            name: userData?.displayName,
+            movies: [userData?.publicKey]
+        },)
+        })
+        log(response)
+        let json = await response.json()
+        log(json)
+      } catch(err) {
+        log("failed to reach URL" + err)
+      }
+    })
+  })
+)
