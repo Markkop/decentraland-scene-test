@@ -1,50 +1,55 @@
-# Decentraland scene
+# ⛰️ Decentraland Scene Test
 
-This folder contains all the necessary files to launch a Decentraland scene.
+This is a small proof of concept for testing the Decentraland SDK.  
 
-## Try it out
+The goal of this PoC was verifying the possibility of getting the logged in user data and making http requests in the scene.
 
-**Install the CLI**
+In this scene, a logged in user (connected to Metamask) can interact with a TV that retrieves a pokemon name from [PokeAPI](https://pokeapi.co/) based on his wallet public key.
 
-Download and install the Decentraland CLI by running the following command:
+Note: other users can't see his pokemon.
 
-```bash
-npm i -g decentraland
-```
+## Demo
 
-**Previewing the scene**
+This scene is deployed on Heroku and can be accessed with the following link:
 
-Open this folder on the command line, then run:
+https://decentraland-scene-test.herokuapp.com/?position=0%2C0&realm=localhost-stub
 
-```
-dcl start
-```
+To login with your metamask wallet and try out the pokemon discovery, access it with the following link:
 
-Any dependencies are installed and then the CLI opens the scene in a new browser tab.
+https://decentraland-scene-test.herokuapp.com/?position=0%2C0&realm=localhost-stub&ENABLE_WEB3
 
-## Deploy to Decentraland
+## Images
 
-If you own any parcels of land in Decentraland, or have permissions to deploy to someone else's, you can publish this project.
+![Logged in Screen](https://user-images.githubusercontent.com/16388408/160688111-27f52354-9246-49b1-9e19-a238a1ad7b37.png)
 
-1. Make sure the scene parcels in `scene.json` match those you own or have permissions on.
-2. Run `dcl deploy` on the project folder
-3. This will open a browser tab to confirm. Metamask will prompt you to sign.
-   > Note: Make sure you are using the wallet that owns the parcels or has permissions.
+![Pokemon Result](https://user-images.githubusercontent.com/16388408/160688141-7f36dc83-a8a6-4940-a317-511de0b6ba8a.png)
 
-### Deploy to a free server
+![Logged Off](https://user-images.githubusercontent.com/16388408/160688196-382703e6-8f72-469b-85a0-5c5369671356.png)
 
-If you don't own parcels in Decentraland or are not ready to publish your scene to the world, you can share your creations by uploading your scenes to a free hosting service.
+## Setup and Development
 
-See [Upload a preview](https://docs.decentraland.org/development-guide/deploy-to-now/) for instructions on how to do this.
+* Clone this repository
+* Install dependencies: `npm i`
+* Install Decentraland CLI globally: `npm i -g decentraland`
+* Preview the scene: `dcl start` or `npm run dev`
+* Preview the scene with Web3: `dlc start --web3` or `npm run dev:web3`
+
+## Deployment
+
+### Decentraland
+
+This project is not deployed to Decentraland yet.  
+Read more about it on [Publishing a Scene](https://docs.decentraland.org/development-guide/publishing/).
+
+### Heroku
+
+The deployment is made to Heroku with Github Action.  
+See [Upload a preview](https://docs.decentraland.org/development-guide/deploy-to-now/) for details.
 
 ## Resources
 
-Learn more about how to build your own scenes in our [documentation](https://docs.decentraland.org/) site.
+Learn more about how to build your own scenes in the [documentation](https://docs.decentraland.org/) site.
 
 Find more example scenes, tutorials and helper libraries in the [Awesome Repository](https://github.com/decentraland-scenes/Awesome-Repository).
 
-If you need any help, join [Decentraland's Discord](https://dcl.gg/discord), where you'll find a vibrant community of other creators who are eager to help. You're sure to find help in the #SDK support channel.
-
-## Copyright info
-
-This scene is protected with a standard Apache 2 licence. See the terms and conditions in the [LICENSE](/LICENSE) file.
+Join [Decentraland's Discord](https://dcl.gg/discord)
