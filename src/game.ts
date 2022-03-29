@@ -3,59 +3,16 @@ import { getUserData, UserData } from "@decentraland/Identity"
 // https://docs.decentraland.org/development-guide/preview-scene/
 // https://docs.decentraland.org/development-guide/remote-scene-considerations/
 
-/// --- Set up a system ---
-
-class RotatorSystem {
-  // this group will contain every entity that has a Transform component
-  group = engine.getComponentGroup(Transform)
-
-  update(dt: number) {
-    // iterate over the entities of the group
-    for (let entity of this.group.entities) {
-      // get the Transform component of the entity
-      const transform = entity.getComponent(Transform)
-
-      // mutate the rotation
-      // transform.rotate(Vector3.Up(), dt * 10)
-    }
+export function splitAndSumNumbers(numberText: string): string {
+  const splittedNumbers = numberText.split('').map(Number)
+  const sum = String(splittedNumbers.reduce((sum: number, number: number) => sum + number, 0))
+  if (sum.length === 1) {
+      return sum
   }
+  return splitAndSumNumbers(sum)
 }
 
-// Add a new instance of the system to the engine
-engine.addSystem(new RotatorSystem())
-
-/// --- Spawner function ---
-
-function spawnCube(x: number, y: number, z: number) {
-  // create the entity
-  const cube = new Entity()
-
-  // add a transform to the entity
-  cube.addComponent(new Transform({ position: new Vector3(x, y, z) }))
-
-  // add a shape to the entity
-  cube.addComponent(new BoxShape())
-
-  // add the entity to the engine
-  engine.addEntity(cube)
-
-  return cube
-}
-
-/// --- Spawn a cube ---
-
-const cube = spawnCube(8, 1, 8)
-
-cube.addComponent(
-  new OnPointerDown(() => {
-    cube.getComponent(Transform).scale.z *= 10.1
-    cube.getComponent(Transform).scale.x *= 0.9
-
-    spawnCube(Math.random() * 8 + 1, Math.random() * 8, Math.random() * 8 + 1)
-  })
-)
-
-let monitor = new Entity()
+const monitor = new Entity()
 monitor.addComponent(new GLTFShape("models/monitor.glb"))
 monitor.addComponent(
   new Transform({
@@ -65,33 +22,65 @@ monitor.addComponent(
 )
 engine.addEntity(monitor)
 
+const screen = new Entity()
+screen.addComponent(new Transform({ 
+  position: new Vector3(0, 0, 0) ,
+  scale: new Vector3(0.9, 0.35, 1),
+  rotation: new Quaternion(0, 1, 0, 0),
+}))
+screen.addComponent(new PlaneShape())
+screen.setParent(monitor)
 
-monitor.addComponent(
-  new OnPointerDown(() => {
-    // https://docs.decentraland.org/development-guide/network-connections/
-    executeTask(async () => {
-      try {
-        let userData: UserData | null
+// https://docs.decentraland.org/development-guide/text/
+const textEntity = new Entity()
+textEntity.addComponent(new Transform({ 
+  position: new Vector3(0, 0, -0.0001) ,
+  scale: new Vector3(0.1, 0.2, 1),
+}))
+const text = new TextShape("Login and discover your pokemon!")
+text.color = Color3.Black()
+text.fontSize = 8
+text.width = 10
+text.textWrapping = true
+textEntity.addComponent(text)
+textEntity.setParent(screen)
 
-        // https://docs.decentraland.org/development-guide/user-data/
-        userData = await getUserData()
-        log({userData})
 
-        const callUrl = 'https://reqres.in/api/users'
-        let response = await fetch(callUrl, {
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
-          body: JSON.stringify({
-            name: userData?.displayName,
-            movies: [userData?.publicKey]
-        },)
-        })
-        log(response)
-        let json = await response.json()
-        log(json)
-      } catch(err) {
-        log("failed to reach URL" + err)
-      }
-    })
+let userData: UserData | null
+
+executeTask(async () => {
+  // https://docs.decentraland.org/development-guide/user-data/
+  userData = await getUserData()
+  log({userData})
+  if (!userData?.publicKey) return
+  textEntity.getComponent(TextShape).value = `Hey ${userData.publicKey}\nClick me to discover your pokemon!`
+})
+
+// https://docs.decentraland.org/development-guide/click-events/
+const discoverPokemonComponent = new OnPointerDown(() => {
+  executeTask(async () => {
+    try {
+      if (!userData?.publicKey) return
+
+      // https://docs.decentraland.org/development-guide/network-connections/
+
+      textEntity.getComponent(TextShape).value = `Please wait...`
+      const numberText = userData.publicKey.replace(/\D/g, '')
+      const id = splitAndSumNumbers(numberText)
+      const callUrl = `https://pokeapi.co/api/v2/pokemon/${id}`
+      let response = await fetch(callUrl, {
+        headers: { "Content-Type": "application/json" },
+        method: "GET",
+      })
+      log(response)
+      let json = await response.json()
+      textEntity.getComponent(TextShape).value = `Your pokemon is ${json.name}`
+      log(json)
+    } catch(err) {
+      log("failed to reach URL" + err)
+    }
   })
-)
+})
+
+monitor.addComponent(discoverPokemonComponent)
+screen.addComponent(discoverPokemonComponent)
